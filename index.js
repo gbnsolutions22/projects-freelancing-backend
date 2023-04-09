@@ -23,7 +23,7 @@ const connectDB = async ()=> {
 app.use(
   cors({
     origin: ["http://localhost:3000"],
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "OPTIONS"],
     credentials: true,
   })
 );
