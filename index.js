@@ -1,10 +1,13 @@
 require('dotenv').config();
-const express = require('express');
-const mongoose = require('mongoose');
-const Projects = require('./models/projects');
+const express = require("express");
+const cors = require("cors");
+const mongoose = require("mongoose");
+const authRoutes = require("./routes/authRoutes");
+const cookieParser = require("cookie-parser");
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
+
 
 mongoose.set('strictQuery',false);
 const connectDB = async ()=> {
@@ -17,39 +20,20 @@ const connectDB = async ()=> {
     }
 }
 
-app.get('/', (req,res) => {
-    res.send({title: 'Projects'});
-});
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST"],
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 
-app.get('/add-project', async (req,res)=>{
-    try{
-        await Projects.insertMany([
-            {
-                title: "QR Scanner",
-                domain: "Android",
-            },
-            {
-                title: "Portfolio",
-                domain: "Web",
-            }
-        ]);
-        res.send("Data added...");
-    }catch (error){
-        console.log(error);
-    }
-});
-
-app.get('/projects', async (req,res) => {
-    const projects = await Projects.find();
-    if(projects){
-        res.json(projects);
-    } else {
-        res.send("Something went wrong.");
-    }
-});
+app.use(express.json());
+app.use("/", authRoutes);
 
 connectDB().then(()=>{
-    app.listen(PORT,()=>{
-        console.log(`Listening on port ${PORT}`);
-    })
+  app.listen(PORT,()=>{
+      console.log(`Listening on port ${PORT}`);
+  })
 });
